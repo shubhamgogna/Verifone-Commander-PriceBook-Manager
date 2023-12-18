@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "VerifoneCommander.PriceBookManager.DesktopApp (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "VerifoneCommander.PriceBookManager.DesktopApp (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

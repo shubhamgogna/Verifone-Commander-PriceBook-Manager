@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="VerifoneCommander.PriceBookManager.DesktopApp.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VerifoneCommander.PriceBookManager.DesktopApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <StackPanel>
+        <StackPanel Margin="{StaticResource VerticalMargin_FirstElement}"
+                    Width="{StaticResource GeneralTextBoxWidth}"
+                    HorizontalAlignment="Left">
+            <TextBox Header="Hostname"
+                     PlaceholderText="Enter ConfigClient hostname (ex: 192.168.31.11)"
+                     Text="{x:Bind ViewModel.Hostname.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="{x:Bind ViewModel.Hostname.Error, Mode=OneWay}"
+                       Visibility="{x:Bind ViewModel.Hostname.HasError, Mode=OneWay}"
+                       Foreground="{ThemeResource SystemErrorTextColor}"
+                       TextWrapping="WrapWholeWords" />
+        </StackPanel>
+
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}">
+            <Button Content="Open App Data Folder"
+                    Name="OpenAppDataFolderButton"
+                    Click="OpenAppDataFolderButton_Click" />
+        </StackPanel>
+
+    </StackPanel>
+</Page>

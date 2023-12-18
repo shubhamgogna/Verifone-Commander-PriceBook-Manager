@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="VerifoneCommander.PriceBookManager.DesktopApp.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VerifoneCommander.PriceBookManager.DesktopApp"
+    xmlns:converters="using:VerifoneCommander.PriceBookManager.DesktopApp.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!-- Other merged dictionaries here -->
+            </ResourceDictionary.MergedDictionaries>
+            <!-- Other app resources here -->
+            <converters:IntToSymbolConverter x:Key="IntToSymbolConverter" />
+            <converters:StringFormatConverter x:Key="StringFormatConverter" />
+            <converters:InfoBarSeverityConverter x:Key="InfoBarSeverityConverter" />
+
+            <Thickness x:Key="HeaderTextBoxMargin">0,0,0,10</Thickness>
+            <Thickness x:Key="IconWithRightTextMargin">0,0,10,0</Thickness>
+
+            <Thickness x:Key="VerticalMargin_FirstElement">0,0,0,10</Thickness>
+            <Thickness x:Key="VerticalMargin_NotFirstElement">0,10</Thickness>
+
+            <x:Double x:Key="GeneralTextBoxWidth">480</x:Double>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

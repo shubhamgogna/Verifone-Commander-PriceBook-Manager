@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="VerifoneCommander.PriceBookManager.DesktopApp.AccountPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VerifoneCommander.PriceBookManager.DesktopApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <StackPanel>
+        <!-- Username -->
+        <StackPanel Margin="{StaticResource VerticalMargin_FirstElement}"
+                    Width="{StaticResource GeneralTextBoxWidth}"
+                    HorizontalAlignment="Left">
+            <TextBox Header="Username"
+                     PlaceholderText="Enter your username"
+                     Text="{x:Bind ViewModel.Username.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     IsEnabled="{x:Bind ViewModel.IsLoggedOut, Mode=OneWay}" />
+            <TextBlock Text="{x:Bind ViewModel.Username.Error, Mode=OneWay}"
+                       Visibility="{x:Bind ViewModel.Username.HasError, Mode=OneWay}"
+                       Foreground="{ThemeResource SystemErrorTextColor}"
+                       TextWrapping="WrapWholeWords" />
+        </StackPanel>
+
+        <!-- Password -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}"
+                    Width="{StaticResource GeneralTextBoxWidth}"
+                    HorizontalAlignment="Left">
+            <PasswordBox Header="Password"
+                     PlaceholderText="Enter your password"
+                     Password="{x:Bind ViewModel.Password.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     IsEnabled="{x:Bind ViewModel.IsLoggedOut, Mode=OneWay}" />
+            <TextBlock Text="{x:Bind ViewModel.Password.Error, Mode=OneWay}"
+                   Visibility="{x:Bind ViewModel.Password.HasError, Mode=OneWay}"
+                   Foreground="{ThemeResource SystemErrorTextColor}"
+                   TextWrapping="WrapWholeWords" />
+        </StackPanel>
+
+        <!-- Log-in, progress, or log-out -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}"
+                    HorizontalAlignment="Left">
+            <Button Visibility="{x:Bind ViewModel.IsLoggedOut, Mode=OneWay}"
+                    Content="Login"
+                    Command="{x:Bind ViewModel.LoginCommand}"/>
+
+            <ProgressRing Visibility="{x:Bind ViewModel.IsLoggingIn, Mode=OneWay}"
+                          IsActive="True" />
+
+            <Button Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}"
+                    Content="Logout"
+                    Command="{x:Bind ViewModel.LogoutCommand}"/>
+        </StackPanel>
+    </StackPanel>
+</Page>

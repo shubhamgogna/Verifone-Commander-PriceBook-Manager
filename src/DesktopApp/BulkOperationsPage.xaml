@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="VerifoneCommander.PriceBookManager.DesktopApp.BulkOperationsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VerifoneCommander.PriceBookManager.DesktopApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <StackPanel>
+        <!-- Info bar -->
+        <StackPanel Margin="{StaticResource VerticalMargin_FirstElement}">
+            <InfoBar Message="{x:Bind ViewModel.InfoBar.Message, Mode=OneWay}"
+                     IsOpen="{x:Bind ViewModel.InfoBar.IsOpen, Mode=TwoWay}"
+                     Severity="{x:Bind ViewModel.InfoBar.Severity, Mode=OneWay, Converter={StaticResource InfoBarSeverityConverter}}"/>
+        </StackPanel>
+
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}">
+            <TextBlock Text="Copy From Department"
+                        Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock Text="This fix copies the taxes, age validations, and food stamp flag from the product's department."
+                        Style="{StaticResource BodyTextBlockStyle}"
+                        Margin="{StaticResource HeaderTextBoxMargin}" />
+            <Button Content="Run"
+                    Command="{x:Bind ViewModel.SyncWithDepartmentCommand, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.CanExecuteCommands, Mode=OneWay}" />
+        </StackPanel>
+
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}">
+            <TextBlock Text="Capitalize Description"
+                        Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock Text="This fix capitalizes the product description (ex: 'Water' becomes 'WATER')."
+                        Style="{StaticResource BodyTextBlockStyle}"
+                        Margin="{StaticResource HeaderTextBoxMargin}" />
+            <Button Content="Run"
+                    Command="{x:Bind ViewModel.CapitalizeDescriptionsCommand, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.CanExecuteCommands, Mode=OneWay}" />
+        </StackPanel>
+
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}">
+            <TextBlock Text="Backup"
+                        Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock Text="This backs up all the loaded products to the app data folder."
+                        Style="{StaticResource BodyTextBlockStyle}"
+                        Margin="{StaticResource HeaderTextBoxMargin}" />
+            <Button Content="Run"
+                    Command="{x:Bind ViewModel.BackupCommand, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.CanExecuteCommands, Mode=OneWay}" />
+        </StackPanel>
+    </StackPanel>
+
+</Page>

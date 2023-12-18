@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="VerifoneCommander.PriceBookManager.DesktopApp.EditPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VerifoneCommander.PriceBookManager.DesktopApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <StackPanel>
+        <StackPanel.Resources>
+            <Style TargetType="TextBox" x:Key="DisabledTextBoxInputGroup">
+                <Setter Property="IsEnabled" Value="False" />
+                <Setter Property="Width" Value="{StaticResource GeneralTextBoxWidth}" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+            </Style>
+            <Style TargetType="ComboBox" x:Key="ComboBox">
+                <Setter Property="Width" Value="{StaticResource GeneralTextBoxWidth}" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="BorderThickness" Value="1" />
+            </Style>
+            <Style TargetType="ListView" x:Key="ListView">
+                <Setter Property="Width" Value="{StaticResource GeneralTextBoxWidth}" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="BorderThickness" Value="1" />
+                <!-- Border brush is the same as ComboBox (found in source code on GitHub) -->
+                <Setter Property="BorderBrush" Value="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
+                <Setter Property="SelectionMode" Value="None" />
+            </Style>
+        </StackPanel.Resources>
+
+        <!-- Info bar -->
+        <StackPanel Margin="{StaticResource VerticalMargin_FirstElement}">
+            <InfoBar Message="{x:Bind ViewModel.InfoBar.Message, Mode=OneWay}"
+                     IsOpen="{x:Bind ViewModel.InfoBar.IsOpen, Mode=TwoWay}"
+                     Severity="{x:Bind ViewModel.InfoBar.Severity, Mode=OneWay, Converter={StaticResource InfoBarSeverityConverter}}"/>
+        </StackPanel>
+
+        <!-- EAN and modifier -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}"
+                    Width="{StaticResource GeneralTextBoxWidth}"
+                    HorizontalAlignment="Left">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="18*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0"
+                            x:Name="EanTextBox"
+                            Header="EAN"
+                            Text="{x:Bind ViewModel.Ean.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            PlaceholderText="Enter a EAN-13 code"
+                            GotFocus="EanTextBox_GotFocus" />
+                <TextBox Grid.Column="2"
+                            Header="Modifier"
+                            Text="{x:Bind ViewModel.Modifier.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            PlaceholderText="Enter a modifier" />
+            </Grid>
+
+            <TextBlock Text="{x:Bind ViewModel.Ean.Error, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Ean.HasError, Mode=OneWay}"
+                        Foreground="{ThemeResource SystemErrorTextColor}"
+                        TextWrapping="WrapWholeWords" />
+            <TextBlock Text="{x:Bind ViewModel.Modifier.Error, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Modifier.HasError, Mode=OneWay}"
+                        Foreground="{ThemeResource SystemErrorTextColor}"
+                        TextWrapping="WrapWholeWords" />
+        </StackPanel>
+
+        <!-- Command Bar -->
+        <Grid Margin="{StaticResource VerticalMargin_NotFirstElement}"
+                Width="{StaticResource GeneralTextBoxWidth}"
+                HorizontalAlignment="Left">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                    HorizontalAlignment="Left"
+                    Command="{x:Bind ViewModel.LoadCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="Refresh" Margin="{StaticResource IconWithRightTextMargin}" />
+                    <TextBlock Text="Load" />
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    Command="{x:Bind ViewModel.SaveCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="Save" Margin="{StaticResource IconWithRightTextMargin}" />
+                    <TextBlock Text="Save" />
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Column="2"
+                    HorizontalAlignment="Right"
+                    x:Name="DeleteButton"
+                    IsEnabled="{x:Bind ViewModel.CanExecuteCommands}">
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="Delete" Margin="{StaticResource IconWithRightTextMargin}" />
+                    <TextBlock Text="Delete" />
+                </StackPanel>
+                <Button.Flyout>
+                    <Flyout>
+                        <StackPanel>
+                            <TextBlock Text="This product will be deleted. Continue?"
+                                        Margin="{StaticResource HeaderTextBoxMargin}"/>
+                            <Button Content="Yes, delete this product"
+                                    Command="{x:Bind ViewModel.DeleteCommand}"
+                                    Click="Button_Click_CloseFlyout" />
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+        </Grid>
+
+        <!-- Description -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}"
+                    Width="{StaticResource GeneralTextBoxWidth}"
+                    HorizontalAlignment="Left">
+            <TextBox Header="Description"
+                        PlaceholderText="Enter a description"
+                        Text="{x:Bind ViewModel.Description.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="{x:Bind ViewModel.Description.Error, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Description.HasError, Mode=OneWay}"
+                        Foreground="{ThemeResource SystemErrorTextColor}"
+                        TextWrapping="WrapWholeWords" />
+        </StackPanel>
+
+        <!-- Price -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}"
+                    Width="{StaticResource GeneralTextBoxWidth}"
+                    HorizontalAlignment="Left">
+            <TextBox Header="Price"
+                        PlaceholderText="Enter a price"
+                        Text="{x:Bind ViewModel.Price.Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="{x:Bind ViewModel.Price.Error, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Price.HasError, Mode=OneWay}"
+                        Foreground="{ThemeResource SystemErrorTextColor}"
+                        TextWrapping="WrapWholeWords" />
+        </StackPanel>
+
+        <!-- Departments -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}">
+            <ComboBox Header="Departments"
+                        ItemsSource="{x:Bind ViewModel.DepartmentNames, Mode=OneWay}"
+                        SelectedItem="{x:Bind ViewModel.SelectedDepartmentName, Mode=TwoWay}"
+                        Style="{StaticResource ComboBox}" />
+        </StackPanel>
+
+        <!-- Food stamps -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}">
+            <ToggleSwitch Header="Allow Food Stamps"
+                            IsOn="{x:Bind ViewModel.AllowFoodStamps, Mode=OneWay}" />
+        </StackPanel>
+
+        <!-- Tax rates -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}">
+            <TextBlock Text="Tax Rates" Margin="{StaticResource HeaderTextBoxMargin}" />
+            <ListView ItemsSource="{x:Bind ViewModel.TaxRateNames}"
+                        Style="{StaticResource ListView}"/>
+        </StackPanel>
+
+        <!-- Age validations -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}">
+            <TextBlock Text="Age Validations" Margin="{StaticResource HeaderTextBoxMargin}" />
+            <ListView ItemsSource="{x:Bind ViewModel.AgeValidationNames}"
+                        Style="{StaticResource ListView}"/>
+        </StackPanel>
+
+        <!-- Sell unit -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}">
+            <TextBox Header="Sell Unit"
+                        Text="{x:Bind ViewModel.SellUnit, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:F2\}'}"
+                        Style="{StaticResource DisabledTextBoxInputGroup}" />
+        </StackPanel>
+
+        <!-- Taxable rebate amount -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}">
+            <TextBox Header="Taxable Rebate Amount"
+                        Text="{x:Bind ViewModel.TaxableRebateAmount, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:F2\}'}"
+                        Style="{StaticResource DisabledTextBoxInputGroup}" />
+        </StackPanel>
+
+        <!-- Max quantity per transaction -->
+        <StackPanel Margin="{StaticResource VerticalMargin_NotFirstElement}">
+            <TextBox Header="Max Quantity Per Transaction"
+                        Text="{x:Bind ViewModel.MaxQuantityPerTransaction, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='\{0:F2\}'}"
+                        Style="{StaticResource DisabledTextBoxInputGroup}" />
+        </StackPanel>
+
+    </StackPanel>
+</Page>

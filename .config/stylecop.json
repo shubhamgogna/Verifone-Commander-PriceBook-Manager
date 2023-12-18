@@ -1,0 +1,20 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
+  "settings": {
+    "documentationRules": {
+      "companyName": "Shubham Gogna",
+      "copyrightText": "Copyright (c) Shubham Gogna",
+      "headerDecoration": "-----------------------------------------------------------------------",
+      "excludeFromPunctuationCheck": [
+        "summary",
+        "typeparam",
+        "param",
+        "remarks",
+        "returns"
+      ],
+      "documentInterfaces": false,
+      "documentExposedElements": false,
+      "documentInternalElements": false
+    }
+  }
+}

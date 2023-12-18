@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="VerifoneCommander.PriceBookManager.DesktopApp.MainNavigationView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VerifoneCommander.PriceBookManager.DesktopApp"
+    xmlns:vm="using:VerifoneCommander.PriceBookManager.DesktopApp.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="MenuItemDataTemplate" x:DataType="vm:PageVm">
+            <NavigationViewItem Content="{x:Bind Name}">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="{x:Bind SymbolCode, Converter={StaticResource IntToSymbolConverter}}" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <NavigationView
+            x:Name="NavView"
+            MenuItemsSource="{x:Bind ViewModel.HeaderPages}"
+            FooterMenuItemsSource="{x:Bind ViewModel.FooterPages}"
+            IsSettingsVisible="False"
+            SelectedItem="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
+            MenuItemTemplate="{StaticResource MenuItemDataTemplate}"
+            SelectionChanged="NavView_SelectionChanged"
+            IsBackEnabled="False"
+            IsBackButtonVisible="Collapsed">
+        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <!-- Frame -->
+            <ScrollView Padding="24,24,24,0">
+                <Frame x:Name="NavViewFrame" />
+            </ScrollView>
+        </Grid>
+    </NavigationView>
+</UserControl>
