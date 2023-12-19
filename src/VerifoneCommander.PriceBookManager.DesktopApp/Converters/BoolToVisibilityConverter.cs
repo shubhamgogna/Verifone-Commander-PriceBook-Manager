@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="IntToSymbolConverter.cs" company="Shubham Gogna">
+// <copyright file="BoolToVisibilityConverter.cs" company="Shubham Gogna">
 // Copyright (c) Shubham Gogna
 // </copyright>
 // -----------------------------------------------------------------------
@@ -7,18 +7,18 @@
 namespace VerifoneCommander.PriceBookManager.DesktopApp.Converters
 {
     using System;
-    using Microsoft.UI.Xaml.Controls;
+    using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Data;
 
-    public class IntToSymbolConverter : IValueConverter
+    public class BoolToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             _ = value ?? throw new ArgumentNullException(nameof(value));
 
-            if (value is int)
+            if (value is bool)
             {
-                return (Symbol)(int)value;
+                return (bool)value ? Visibility.Visible : Visibility.Collapsed;
             }
 
             throw new ArgumentException($"Unknown type of value '{value?.GetType()}'");

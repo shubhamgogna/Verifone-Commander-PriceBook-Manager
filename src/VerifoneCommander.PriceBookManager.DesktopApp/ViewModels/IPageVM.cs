@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.UI.Xaml.Controls;
+﻿// -----------------------------------------------------------------------
+// <copyright file="IPageVM.cs" company="Shubham Gogna">
+// Copyright (c) Shubham Gogna
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
 {

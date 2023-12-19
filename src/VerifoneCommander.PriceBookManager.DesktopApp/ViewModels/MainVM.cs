@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// -----------------------------------------------------------------------
+// <copyright file="MainVM.cs" company="Shubham Gogna">
+// Copyright (c) Shubham Gogna
+// </copyright>
+// -----------------------------------------------------------------------
 
 namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
 {
-    public class MainVM : BindableBase
+    using System.Collections.ObjectModel;
+    using CommunityToolkit.Mvvm.ComponentModel;
+
+    public class MainVM : ObservableObject
     {
         private readonly AccountPageVM accountPage = new AccountPageVM();
         private readonly ObservableCollection<IPageVM> pages = new ObservableCollection<IPageVM>();

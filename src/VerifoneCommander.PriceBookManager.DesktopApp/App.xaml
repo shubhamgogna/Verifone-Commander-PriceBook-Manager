@@ -13,6 +13,7 @@
             </ResourceDictionary.MergedDictionaries>
             <!-- Other app resources here -->
             <converters:IntToSymbolConverter x:Key="IntToSymbolConverter" />
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -22,14 +22,15 @@
 
     <Grid>
         <NavigationView 
-            x:Name="nvSample"
+            x:Name="NavView"
             MenuItemsSource="{x:Bind ViewModel.Pages}"
-            MenuItemTemplate="{StaticResource MenuItemDataTemplate}">
+            MenuItemTemplate="{StaticResource MenuItemDataTemplate}"
+            SelectionChanged="NavView_SelectionChanged">
             <Grid Padding="40,24,24,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Frame x:Name="NavigationViewFrame" />
+                <Frame x:Name="NavViewFrame" />
             </Grid>
         </NavigationView>
     </Grid>

@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------
-// <copyright file="MainPage.xaml.cs" company="Shubham Gogna">
+// <copyright file="AccountPage.xaml.cs" company="Shubham Gogna">
 // Copyright (c) Shubham Gogna
 // </copyright>
 // -----------------------------------------------------------------------
@@ -12,18 +12,13 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class AccountPage : Page
     {
-        public MainPage()
+        public AccountPage()
         {
             this.InitializeComponent();
         }
 
-        public MainVM ViewModel { get; } = new MainVM();
-
-        private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
-        {
-            this.NavViewFrame.Navigate(typeof(AccountPage));
-        }
+        public AccountPageVM ViewModel { get; } = new AccountPageVM();
     }
 }
