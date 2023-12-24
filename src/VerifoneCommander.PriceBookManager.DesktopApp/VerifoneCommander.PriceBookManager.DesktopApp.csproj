@@ -17,8 +17,10 @@
     <Content Remove="Assets\PackageLogo.scale-400.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="AccountPage.xaml" />
-    <None Remove="MainPage.xaml" />
+    <None Remove="LoginPage.xaml" />
+    <None Remove="MainNavigationView.xaml" />
+    <None Remove="SettingsPage.xaml" />
+    <None Remove="ValidatedPasswordBox.xaml" />
     <None Remove="ValidatedTextBox.xaml" />
   </ItemGroup>
 
@@ -38,17 +40,27 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
-    <Page Update="AccountPage.xaml">
+    <Page Update="ValidatedPasswordBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="LoginPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="SettingsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="MainNavigationView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="ValidatedTextBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

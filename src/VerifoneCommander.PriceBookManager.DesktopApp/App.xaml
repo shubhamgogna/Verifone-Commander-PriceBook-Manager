@@ -14,6 +14,10 @@
             <!-- Other app resources here -->
             <converters:IntToSymbolConverter x:Key="IntToSymbolConverter" />
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+
+            <Thickness x:Key="InputGroupMargin">0,8</Thickness>
+            <Thickness x:Key="ButtonWithLeftIconMargin">0,0,8,0</Thickness>
+            <x:Double x:Key="GeneralTextBoxWidth">500</x:Double>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

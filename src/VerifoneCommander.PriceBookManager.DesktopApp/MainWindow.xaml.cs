@@ -16,6 +16,6 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
         public MainWindow()
         {
             this.InitializeComponent();
-        }   
+        }
     }
 }

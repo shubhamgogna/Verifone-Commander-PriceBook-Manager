@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------
-// <copyright file="ValidatedTextBox.xaml.cs" company="Shubham Gogna">
+// <copyright file="ValidatedPasswordBox.xaml.cs" company="Shubham Gogna">
 // Copyright (c) Shubham Gogna
 // </copyright>
 // -----------------------------------------------------------------------
@@ -9,33 +9,33 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
     using Microsoft.UI.Xaml;
     using Microsoft.UI.Xaml.Controls;
 
-    public sealed partial class ValidatedTextBox : UserControl
+    public sealed partial class ValidatedPasswordBox : UserControl
     {
         public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register(
             nameof(Header),
             typeof(string),
-            typeof(ValidatedTextBox),
+            typeof(ValidatedPasswordBox),
             new PropertyMetadata(default(string)));
 
         public static readonly DependencyProperty PlaceholderProperty = DependencyProperty.Register(
             nameof(Placeholder),
             typeof(string),
-            typeof(ValidatedTextBox),
+            typeof(ValidatedPasswordBox),
             new PropertyMetadata(default(string)));
 
-        public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
-            nameof(Text),
+        public static readonly DependencyProperty PasswordProperty = DependencyProperty.Register(
+            nameof(Password),
             typeof(string),
-            typeof(ValidatedTextBox),
+            typeof(ValidatedPasswordBox),
             new PropertyMetadata(default(string)));
 
         public static readonly DependencyProperty ErrorProperty = DependencyProperty.Register(
             nameof(Error),
             typeof(string),
-            typeof(ValidatedTextBox),
+            typeof(ValidatedPasswordBox),
             new PropertyMetadata(default(string)));
 
-        public ValidatedTextBox()
+        public ValidatedPasswordBox()
         {
             this.InitializeComponent();
         }
@@ -52,10 +52,10 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
             set => this.SetValue(PlaceholderProperty, value);
         }
 
-        public string Text
+        public string Password
         {
-            get => (string)this.GetValue(TextProperty);
-            set => this.SetValue(TextProperty, value);
+            get => (string)this.GetValue(PasswordProperty);
+            set => this.SetValue(PasswordProperty, value);
         }
 
         public string Error

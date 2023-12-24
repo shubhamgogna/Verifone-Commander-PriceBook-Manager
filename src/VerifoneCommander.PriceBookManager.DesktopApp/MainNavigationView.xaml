@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Page
-    x:Class="VerifoneCommander.PriceBookManager.DesktopApp.MainPage"
+<UserControl
+    x:Class="VerifoneCommander.PriceBookManager.DesktopApp.MainNavigationView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:VerifoneCommander.PriceBookManager.DesktopApp"
     xmlns:vm="using:VerifoneCommander.PriceBookManager.DesktopApp.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
-    <Page.Resources>
+    <UserControl.Resources>
         <DataTemplate x:Key="MenuItemDataTemplate" x:DataType="vm:IPageVM">
             <NavigationViewItem Content="{x:Bind Name}">
                 <NavigationViewItem.Icon>
@@ -18,20 +17,21 @@
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </DataTemplate>
-    </Page.Resources>
+    </UserControl.Resources>
 
-    <Grid>
-        <NavigationView 
+    <NavigationView
             x:Name="NavView"
-            MenuItemsSource="{x:Bind ViewModel.Pages}"
+            MenuItemsSource="{x:Bind ViewModel.HeaderPages}"
+            FooterMenuItemsSource="{x:Bind ViewModel.FooterPages}"
+            IsSettingsVisible="False"
+            SelectedItem="{x:Bind ViewModel.CurrentPage}"
             MenuItemTemplate="{StaticResource MenuItemDataTemplate}"
             SelectionChanged="NavView_SelectionChanged">
-            <Grid Padding="40,24,24,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Frame x:Name="NavViewFrame" />
-            </Grid>
-        </NavigationView>
-    </Grid>
-</Page>
+        <Grid Padding="40,24,24,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Frame x:Name="NavViewFrame" />
+        </Grid>
+    </NavigationView>
+</UserControl>
