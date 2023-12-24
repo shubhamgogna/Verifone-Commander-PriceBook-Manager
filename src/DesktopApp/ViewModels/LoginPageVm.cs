@@ -13,8 +13,11 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
     {
         private readonly Settings settings;
 
-        public LoginPageVm()
+        public LoginPageVm(
+            Settings settings)
         {
+            this.settings = settings ?? throw new System.ArgumentNullException(nameof(settings));
+
             this.Username = new ValidatedTextVm(value =>
             {
                 if (string.IsNullOrWhiteSpace(value))

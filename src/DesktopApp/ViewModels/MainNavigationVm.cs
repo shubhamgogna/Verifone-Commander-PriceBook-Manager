@@ -20,8 +20,9 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
 
         public MainNavigationVm()
         {
-            this.AccountPage = new LoginPageVm();
-            this.SettingsPage = new SettingsPageVm(new Settings());
+            var settings = new Settings();
+            this.AccountPage = new LoginPageVm(settings);
+            this.SettingsPage = new SettingsPageVm(settings);
 
             this.headerPages.Add(this.AccountPage);
             this.footerPages.Add(this.SettingsPage);
