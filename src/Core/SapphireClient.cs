@@ -9,8 +9,7 @@ namespace VerifoneCommander.PriceBookManager.Core
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Net.Http;
-    using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Microsoft.Extensions.Logging;
@@ -18,66 +17,34 @@ namespace VerifoneCommander.PriceBookManager.Core
 
     public class SapphireClient : ISapphireClient, IDisposable
     {
-        private const string CgiBinNaxmlPath = "cgi-bin/NAXML";
-
-        private readonly HttpClientHandler httpClientHandler;
-        private readonly HttpClient httpClient;
-
-        private readonly Uri cgiBinNaxmlRequestUri;
-        private readonly string userName;
-        private readonly string password;
+        private readonly ISapphireHttpClient httpClient;
         private readonly ILogger logger;
 
-        private string cookie;
-
         public SapphireClient(
-            Uri baseUri,
-            string userName,
-            string password,
-            ILogger logger)
+            ISapphireHttpClient httpClient,
+            ILogger<SapphireClient> logger)
         {
-            if (baseUri is null)
-            {
-                throw new ArgumentNullException(nameof(baseUri));
-            }
-
-            if (string.IsNullOrEmpty(userName))
-            {
-                throw new ArgumentException($"'{nameof(userName)}' cannot be null or empty", nameof(userName));
-            }
-
-            if (string.IsNullOrEmpty(password))
-            {
-                throw new ArgumentException($"'{nameof(password)}' cannot be null or empty", nameof(password));
-            }
-
-            this.httpClientHandler = new HttpClientHandler()
-            {
-                // Required for custom certificate generated for the POS systems
-                ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
-            };
-            this.httpClient = new HttpClient(this.httpClientHandler);
-
-            this.cgiBinNaxmlRequestUri = new Uri(baseUri.AbsoluteUri + CgiBinNaxmlPath);
-            this.userName = userName;
-            this.password = password;
+            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<List<Plu>> GetPriceLookUpsAsync()
+        public async Task<List<Plu>> GetPriceLookUpsAsync(
+            CancellationToken cancellationToken)
         {
             const int PageSize = 1_000_000; // 1 million
 
-            await this.EnsureValidCookie().ConfigureAwait(false);
-            var content = $@"cmd=vPLUs&cookie={this.cookie}
-
+            var body = $@"
 <domain:PLUSelect xmlns:domain=""urn:vfi-sapphire:np.domain.2001-07-01"">
   <pageSize>{PageSize}</pageSize>
   <page>1</page>
 </domain:PLUSelect>
 ";
-            using var request = this.CreateRequest(content);
-            var responseContent = await this.SendRequestAndEnsureSuccessAsync(request).ConfigureAwait(false);
+
+            var responseContent = await this.httpClient.SendAsync(
+                cmdHeader: "cmd=vPLUs",
+                body: body,
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+
             var doc = XDocument.Parse(responseContent);
             var list = doc.Descendants(SapphireXNames.Plu)
                 .Select(element =>
@@ -98,29 +65,31 @@ namespace VerifoneCommander.PriceBookManager.Core
             return list;
         }
 
-        public async Task UpdatePriceLookUpAsync(Plu plu)
+        public async Task UpdatePriceLookUpAsync(
+            Plu plu,
+            CancellationToken cancellationToken)
         {
             _ = plu ?? throw new ArgumentNullException(nameof(plu));
 
-            var documentElement = new XElement(
+            var element = new XElement(
                 SapphireXNames.Plus,
                 new XAttribute(SapphireXNames.DomainNamespace, SapphireXNames.DomainNamespaceName),
                 new XAttribute("page", "1"),
                 new XAttribute("ofPages", "1"),
                 ModelConverter.ConvertPluToXml(plu));
 
-            await this.EnsureValidCookie().ConfigureAwait(false);
-            var content = $@"cmd=uPLUs&cookie={this.cookie}
-
-{documentElement}"; // Note: Space is required
-
-            using var request = this.CreateRequest(content);
-            await this.SendRequestAndEnsureSuccessAsync(request).ConfigureAwait(false);
+            await this.httpClient.SendAsync(
+                cmdHeader: "cmd=uPLUs",
+                body: element.ToString(),
+                cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task DeletePriceLookUpAsync(long ean13, int modifier)
+        public async Task DeletePriceLookUpAsync(
+            long ean13,
+            int modifier,
+            CancellationToken cancellationToken)
         {
-            var documentElement = new XElement(
+            var element = new XElement(
                 SapphireXNames.Plus,
                 new XAttribute(SapphireXNames.DomainNamespace, SapphireXNames.DomainNamespaceName),
                 new XAttribute("page", "1"),
@@ -135,22 +104,22 @@ namespace VerifoneCommander.PriceBookManager.Core
                         "upcModifier",
                         modifier.ToString("D3"))));
 
-            await this.EnsureValidCookie().ConfigureAwait(false);
-            var content = $@"cmd=uPLUs&cookie={this.cookie}
-
-{documentElement}"; // Note: Space is required
-
-            using var request = this.CreateRequest(content);
-            await this.SendRequestAndEnsureSuccessAsync(request).ConfigureAwait(false);
+            await this.httpClient.SendAsync(
+                cmdHeader: "cmd=uPLUs",
+                body: element.ToString(),
+                cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<List<Department>> GetDepartmentsAsync()
+        public async Task<List<Department>> GetDepartmentsAsync(
+            CancellationToken cancellationToken)
         {
-            await this.EnsureValidCookie().ConfigureAwait(false);
-            using var request = this.CreateRequest($"cmd=vposcfg&cookie={this.cookie}");
-            var responseContent = await this.SendRequestAndEnsureSuccessAsync(request).ConfigureAwait(false);
+            var responseContent = await this.httpClient.SendAsync(
+                cmdHeader: "cmd=vposcfg",
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+
             var doc = XDocument.Parse(responseContent);
-            var list = doc.Descendants(SapphireXNames.Department)
+            var list = doc
+                .Descendants(SapphireXNames.Department)
                 .Select(element =>
                  {
                      try
@@ -169,11 +138,13 @@ namespace VerifoneCommander.PriceBookManager.Core
             return list;
         }
 
-        public async Task<List<TaxRate>> GetTaxRatesAsync()
+        public async Task<List<TaxRate>> GetTaxRatesAsync(
+            CancellationToken cancellationToken)
         {
-            await this.EnsureValidCookie().ConfigureAwait(false);
-            using var request = this.CreateRequest($"cmd=vpaymentcfg&cookie={this.cookie}");
-            var responseContent = await this.SendRequestAndEnsureSuccessAsync(request).ConfigureAwait(false);
+            var responseContent = await this.httpClient.SendAsync(
+                cmdHeader: "cmd=vpaymentcfg",
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+
             var doc = XDocument.Parse(responseContent);
             var list = doc.Descendants("taxRate")
                 .Select(element =>
@@ -194,11 +165,13 @@ namespace VerifoneCommander.PriceBookManager.Core
             return list;
         }
 
-        public async Task<List<AgeValidation>> GetAgeValidationsAsync()
+        public async Task<List<AgeValidation>> GetAgeValidationsAsync(
+            CancellationToken cancellationToken)
         {
-            await this.EnsureValidCookie().ConfigureAwait(false);
-            using var request = this.CreateRequest($"cmd=vrefinteg&dataset=ageValidations&cookie={this.cookie}");
-            var responseContent = await this.SendRequestAndEnsureSuccessAsync(request).ConfigureAwait(false);
+            var responseContent = await this.httpClient.SendAsync(
+                cmdHeader: "cmd=vrefinteg&dataset=ageValidations",
+                cancellationToken: cancellationToken).ConfigureAwait(false);
+
             var doc = XDocument.Parse(responseContent);
             var list = doc.Descendants(SapphireXNames.AgeValidation)
                 .Select(element =>
@@ -228,65 +201,7 @@ namespace VerifoneCommander.PriceBookManager.Core
 
         protected virtual void Dispose(bool disposing)
         {
-            this.httpClientHandler.Dispose();
             this.httpClient.Dispose();
-        }
-
-        private async Task EnsureValidCookie()
-        {
-            if (!string.IsNullOrEmpty(this.cookie))
-            {
-                return;
-            }
-
-            using var request = this.CreateRequest($"cmd=validate&user={this.userName}&passwd={this.password}");
-            var responseContent = await this.SendRequestAndEnsureSuccessAsync(request).ConfigureAwait(false);
-            var doc = XDocument.Parse(responseContent);
-
-            this.cookie = doc.Descendants("cookie").First().Value;
-        }
-
-        private HttpRequestMessage CreateRequest(string content)
-        {
-            return new HttpRequestMessage(HttpMethod.Post, this.cgiBinNaxmlRequestUri)
-            {
-                Content = new StringContent(content, Encoding.UTF8, "text/plain"),
-            };
-        }
-
-        private async Task<string> SendRequestAndEnsureSuccessAsync(HttpRequestMessage request)
-        {
-            using var response = await this.httpClient.SendAsync(request).ConfigureAwait(false);
-            var responseContent = response.Content != null ? await response.Content.ReadAsStringAsync().ConfigureAwait(false) : string.Empty;
-
-            if (!response.IsSuccessStatusCode ||
-                responseContent.Contains("VFI:Fault") ||
-                responseContent.Contains("faultCode") ||
-                responseContent.Contains("faultString"))
-            {
-                this.LogUnexpectedResponse(request, response, responseContent);
-                throw new HttpRequestException(responseContent);
-            }
-
-            return responseContent;
-        }
-
-        private void LogUnexpectedResponse(HttpRequestMessage request, HttpResponseMessage response, string responseContent)
-        {
-            var message = string.Empty;
-            message += $"{(int)response.StatusCode} '{response.ReasonPhrase}' {request.Method} {request.RequestUri}";
-            message += Environment.NewLine;
-
-            foreach (var headerPair in response.Headers)
-            {
-                message += $"{headerPair.Key}: {string.Join(",", headerPair.Value)}";
-                message += Environment.NewLine;
-            }
-
-            message += responseContent;
-            message += Environment.NewLine;
-
-            this.logger.LogError(message);
         }
     }
 }
