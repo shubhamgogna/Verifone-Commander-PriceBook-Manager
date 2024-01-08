@@ -25,9 +25,9 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
                 return;
             }
 
-            if (args.SelectedItem.GetType() == typeof(LoginPageVm))
+            if (args.SelectedItem.GetType() == typeof(AccountPageVm))
             {
-                this.NavViewFrame.Navigate(typeof(LoginPage));
+                this.NavViewFrame.Navigate(typeof(AccountPage));
             }
             else if (args.SelectedItem.GetType() == typeof(SettingsPageVm))
             {

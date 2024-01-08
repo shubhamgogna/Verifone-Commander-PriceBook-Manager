@@ -7,28 +7,35 @@
 namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
 {
     using System;
-    using CommunityToolkit.Mvvm.ComponentModel;
+    using CommunityToolkit.Mvvm.Messaging;
+    using Microsoft.Extensions.Logging;
     using VerifoneCommander.PriceBookManager.DesktopApp.Models;
 
-    public class SettingsPageVm : ObservableObject, IPageVM
+    public class SettingsPageVm : ViewModelBase, IPageVM
     {
         private readonly Settings settings;
 
-        public SettingsPageVm(Settings settings)
+        public SettingsPageVm(
+            Settings settings,
+            IUiThreadDispatcher uiThreadDispatcher,
+            IMessenger messenger,
+            ILogger logger)
+            : base(uiThreadDispatcher, messenger, logger)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
-            this.Hostname = new ValidatedTextVm(value =>
-            {
-                if (string.IsNullOrWhiteSpace(value))
+            this.Hostname = new ValidatedTextVm(
+                v =>
                 {
-                    return "Empty hostname not allowed";
-                }
+                    if (string.IsNullOrWhiteSpace(v))
+                    {
+                        return "Empty hostname not allowed";
+                    }
 
-                // Valid. Update in settings.
-                this.settings.Hostname = value;
-                return string.Empty;
-            });
+                    // Valid. Update in settings.
+                    this.settings.Hostname = v;
+                    return string.Empty;
+                });
         }
 
         public string Name => "Settings";
@@ -46,16 +53,6 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
                 newValue: value,
                 model: this.settings,
                 callback: (model, val) => model.Ean13IncludesCheckDigit = val);
-        }
-
-        public bool UseMockData
-        {
-            get => this.settings.UseMockData;
-            set => this.SetProperty(
-                oldValue: this.settings.UseMockData,
-                newValue: value,
-                model: this.settings,
-                callback: (model, val) => model.UseMockData = val);
         }
     }
 }

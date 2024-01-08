@@ -6,13 +6,24 @@
 
 namespace VerifoneCommander.PriceBookManager.DesktopApp
 {
+    using System;
+    using System.Threading.Tasks;
+    using CommunityToolkit.Mvvm.Messaging;
+    using CommunityToolkit.WinUI;
+    using Microsoft.Extensions.Logging.Abstractions;
+    using Microsoft.UI.Dispatching;
     using Microsoft.UI.Xaml;
+    using VerifoneCommander.PriceBookManager.Core;
+    using VerifoneCommander.PriceBookManager.DesktopApp.Mocks;
+    using VerifoneCommander.PriceBookManager.DesktopApp.ViewModels;
 
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
     public partial class App : Application
     {
+        private static bool useMocks = true;
+
         private Window window;
 
         /// <summary>
@@ -25,7 +36,44 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
         public App()
         {
             this.InitializeComponent();
-            ViewModelResolver = new AppViewModelResolver();
+
+            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            var uiThreadDispatcher = new UiThreadDispatcher(dispatcherQueue);
+            var messenger = WeakReferenceMessenger.Default;
+            var logger = NullLogger.Instance;
+
+            IModifiableSapphireCredentialsProvider credentialsProvider;
+            ISapphireClient sapphireClient;
+
+            if (useMocks)
+            {
+                credentialsProvider = new MockCredentialProvider();
+                sapphireClient = new MockSapphireClient();
+            }
+            else
+            {
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                var httpRequestSender = new HttpClientHttpRequestSender();
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+                credentialsProvider = new SapphireCredentialProvider(
+                    httpRequestSender,
+                    NullLogger<SapphireCredentialProvider>.Instance);
+
+                sapphireClient = new SapphireClient(
+                    httpRequestSender,
+                    credentialsProvider,
+                    NullLogger<SapphireClient>.Instance);
+            }
+
+            var mainNavigationVm = new MainNavigationVm(
+                uiThreadDispatcher,
+                messenger,
+                logger,
+                credentialsProvider,
+                sapphireClient);
+
+            ViewModelResolver = new AppViewModelResolver(mainNavigationVm);
         }
 
         public static IAppViewModelResolver ViewModelResolver { get; private set; }
@@ -38,6 +86,22 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
         {
             this.window = new MainWindow();
             this.window.Activate();
+        }
+
+        private class UiThreadDispatcher : IUiThreadDispatcher
+        {
+            private readonly DispatcherQueue dispatcherQueue;
+
+            public UiThreadDispatcher(
+                DispatcherQueue dispatcherQueue)
+            {
+                this.dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
+            }
+
+            public Task DispatchAsync(Action action)
+            {
+                return this.dispatcherQueue.EnqueueAsync(action);
+            }
         }
     }
 }

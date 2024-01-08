@@ -8,12 +8,10 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.Models
 {
     public class Settings
     {
-        public string Hostname { get; set; }
+        public string Hostname { get; set; } = "192.168.31.11";
 
         public string Username { get; set; }
 
         public bool Ean13IncludesCheckDigit { get; set; }
-
-        public bool UseMockData { get; set; }
     }
 }

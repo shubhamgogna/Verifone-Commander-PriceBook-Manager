@@ -12,7 +12,13 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
 
     public class AppViewModelResolver : IAppViewModelResolver
     {
-        private readonly MainNavigationVm mainNavigationVm = new MainNavigationVm();
+        private readonly MainNavigationVm mainNavigationVm;
+
+        public AppViewModelResolver(
+            MainNavigationVm mainNavigationVm)
+        {
+            this.mainNavigationVm = mainNavigationVm ?? throw new ArgumentNullException(nameof(mainNavigationVm));
+        }
 
         public T Resolve<T>()
             where T : ObservableObject
@@ -21,7 +27,7 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
             {
                 return this.mainNavigationVm as T;
             }
-            else if (typeof(T) == typeof(LoginPageVm))
+            else if (typeof(T) == typeof(AccountPageVm))
             {
                 return this.mainNavigationVm.AccountPage as T;
             }

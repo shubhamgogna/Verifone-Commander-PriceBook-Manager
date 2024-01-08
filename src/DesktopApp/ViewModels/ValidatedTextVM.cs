@@ -14,16 +14,28 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
         private readonly Func<string, string> validationFunc;
 
         [ObservableProperty]
-        private string text = string.Empty;
+        private string text;
 
         [ObservableProperty]
-        private string error = string.Empty;
+        [NotifyPropertyChangedFor(nameof(HasError))]
+        private string error;
 
         public ValidatedTextVm(
             Func<string, string> validationFunc)
+            : this(string.Empty, validationFunc)
+        {
+        }
+
+        public ValidatedTextVm(
+            string initialValue,
+            Func<string, string> validationFunc)
         {
             this.validationFunc = validationFunc;
+
+            this.Text = initialValue;
         }
+
+        public bool HasError => !string.IsNullOrEmpty(this.Error);
 
         partial void OnTextChanged(string value)
         {

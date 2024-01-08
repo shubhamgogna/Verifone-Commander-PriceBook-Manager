@@ -9,22 +9,26 @@ namespace VerifoneCommander.PriceBookManager.Core
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Microsoft.Extensions.Logging;
     using VerifoneCommander.PriceBookManager.Core.Models;
 
-    public class SapphireClient : ISapphireClient, IDisposable
+    public class SapphireClient : ISapphireClient
     {
-        private readonly ISapphireHttpClient httpClient;
+        private readonly IHttpRequestSender httpRequestSender;
+        private readonly ISapphireCredentialsProvider credentialProvider;
         private readonly ILogger logger;
 
         public SapphireClient(
-            ISapphireHttpClient httpClient,
+            IHttpRequestSender httpRequestSender,
+            ISapphireCredentialsProvider credentialProvider,
             ILogger<SapphireClient> logger)
         {
-            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            this.httpRequestSender = httpRequestSender ?? throw new ArgumentNullException(nameof(httpRequestSender));
+            this.credentialProvider = credentialProvider ?? throw new ArgumentNullException(nameof(credentialProvider));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -40,7 +44,7 @@ namespace VerifoneCommander.PriceBookManager.Core
 </domain:PLUSelect>
 ";
 
-            var responseContent = await this.httpClient.SendAsync(
+            var responseContent = await this.SendAsync(
                 cmdHeader: "cmd=vPLUs",
                 body: body,
                 cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -78,7 +82,7 @@ namespace VerifoneCommander.PriceBookManager.Core
                 new XAttribute("ofPages", "1"),
                 ModelConverter.ConvertPluToXml(plu));
 
-            await this.httpClient.SendAsync(
+            await this.SendAsync(
                 cmdHeader: "cmd=uPLUs",
                 body: element.ToString(),
                 cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -104,7 +108,7 @@ namespace VerifoneCommander.PriceBookManager.Core
                         "upcModifier",
                         modifier.ToString("D3"))));
 
-            await this.httpClient.SendAsync(
+            await this.SendAsync(
                 cmdHeader: "cmd=uPLUs",
                 body: element.ToString(),
                 cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -113,7 +117,7 @@ namespace VerifoneCommander.PriceBookManager.Core
         public async Task<List<Department>> GetDepartmentsAsync(
             CancellationToken cancellationToken)
         {
-            var responseContent = await this.httpClient.SendAsync(
+            var responseContent = await this.SendAsync(
                 cmdHeader: "cmd=vposcfg",
                 cancellationToken: cancellationToken).ConfigureAwait(false);
 
@@ -141,7 +145,7 @@ namespace VerifoneCommander.PriceBookManager.Core
         public async Task<List<TaxRate>> GetTaxRatesAsync(
             CancellationToken cancellationToken)
         {
-            var responseContent = await this.httpClient.SendAsync(
+            var responseContent = await this.SendAsync(
                 cmdHeader: "cmd=vpaymentcfg",
                 cancellationToken: cancellationToken).ConfigureAwait(false);
 
@@ -168,7 +172,7 @@ namespace VerifoneCommander.PriceBookManager.Core
         public async Task<List<AgeValidation>> GetAgeValidationsAsync(
             CancellationToken cancellationToken)
         {
-            var responseContent = await this.httpClient.SendAsync(
+            var responseContent = await this.SendAsync(
                 cmdHeader: "cmd=vrefinteg&dataset=ageValidations",
                 cancellationToken: cancellationToken).ConfigureAwait(false);
 
@@ -192,16 +196,72 @@ namespace VerifoneCommander.PriceBookManager.Core
             return list;
         }
 
-        public void Dispose()
+        private Task<string> SendAsync(
+                    string cmdHeader,
+                    CancellationToken cancellationToken)
         {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            this.Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            return this.SendAsync(
+                cmdHeader: cmdHeader,
+                body: null,
+                cancellationToken: cancellationToken);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private async Task<string> SendAsync(
+            string cmdHeader,
+            string body,
+            CancellationToken cancellationToken)
         {
-            this.httpClient.Dispose();
+            if (string.IsNullOrWhiteSpace(cmdHeader))
+            {
+                throw new ArgumentException($"'{nameof(cmdHeader)}' cannot be null or whitespace.", nameof(cmdHeader));
+            }
+
+            var credentials = await this.credentialProvider.GetCredentialsAsync(
+                cancellationToken).ConfigureAwait(false);
+
+            var requestContent = GetRequestBody(cmdHeader, body, credentials.Cookie);
+
+            using var request = SapphireHttpUtil.CreateRequest(
+                credentials.NaxmlRequestUri,
+                requestContent);
+
+            using var response = await this.httpRequestSender.SendAsync(
+                request,
+                cancellationToken).ConfigureAwait(false);
+
+            var responseContent = await SapphireHttpUtil.ReadResponseContentAsync(
+                response,
+                cancellationToken).ConfigureAwait(false);
+
+            if (SapphireHttpUtil.IsUnsuccessfulResponse(
+                response: response,
+                requestContent: GetRequestBody(cmdHeader, body, "[REDACTED_COOKIE]"),
+                responseContent: responseContent,
+                logger: this.logger))
+            {
+                throw new SapphireRequestException(responseContent);
+            }
+
+            return responseContent;
+
+            static string GetRequestBody(
+                string cmdHeader,
+                string body,
+                string cookie)
+            {
+                var sb = new StringBuilder();
+                sb.Append(cmdHeader);
+                sb.Append("&cookie=");
+                sb.AppendLine(cookie);
+
+                if (!string.IsNullOrEmpty(body))
+                {
+                    sb.AppendLine();
+                    sb.Append(body);
+                }
+
+                return sb.ToString();
+            }
         }
     }
 }

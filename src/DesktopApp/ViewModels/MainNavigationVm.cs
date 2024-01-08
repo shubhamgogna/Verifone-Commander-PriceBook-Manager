@@ -8,9 +8,12 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
 {
     using System.Collections.ObjectModel;
     using CommunityToolkit.Mvvm.ComponentModel;
+    using CommunityToolkit.Mvvm.Messaging;
+    using Microsoft.Extensions.Logging;
+    using VerifoneCommander.PriceBookManager.Core;
     using VerifoneCommander.PriceBookManager.DesktopApp.Models;
 
-    public partial class MainNavigationVm : ObservableObject
+    public partial class MainNavigationVm : ViewModelBase
     {
         private readonly ObservableCollection<IPageVM> headerPages = new();
         private readonly ObservableCollection<IPageVM> footerPages = new();
@@ -18,11 +21,29 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
         [ObservableProperty]
         private IPageVM currentPage;
 
-        public MainNavigationVm()
+        public MainNavigationVm(
+            IUiThreadDispatcher uiThreadDispatcher,
+            IMessenger messenger,
+            ILogger logger,
+            IModifiableSapphireCredentialsProvider credentialsProvider,
+            ISapphireClient sapphireClient)
+            : base(uiThreadDispatcher, messenger, logger)
         {
             var settings = new Settings();
-            this.AccountPage = new LoginPageVm(settings);
-            this.SettingsPage = new SettingsPageVm(settings);
+
+            this.AccountPage = new AccountPageVm(
+                uiThreadDispatcher,
+                messenger,
+                logger,
+                settings,
+                credentialsProvider,
+                sapphireClient);
+
+            this.SettingsPage = new SettingsPageVm(
+                settings,
+                uiThreadDispatcher,
+                messenger,
+                logger);
 
             this.headerPages.Add(this.AccountPage);
             this.footerPages.Add(this.SettingsPage);
@@ -34,7 +55,7 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
 
         public ObservableCollection<IPageVM> FooterPages => this.footerPages;
 
-        public LoginPageVm AccountPage { get; private set; }
+        public AccountPageVm AccountPage { get; private set; }
 
         public SettingsPageVm SettingsPage { get; private set; }
     }

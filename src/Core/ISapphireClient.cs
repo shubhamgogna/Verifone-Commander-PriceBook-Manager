@@ -6,13 +6,12 @@
 
 namespace VerifoneCommander.PriceBookManager.Core
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using VerifoneCommander.PriceBookManager.Core.Models;
 
-    public interface ISapphireClient : IDisposable
+    public interface ISapphireClient
     {
         Task<List<Plu>> GetPriceLookUpsAsync(
             CancellationToken cancellationToken);

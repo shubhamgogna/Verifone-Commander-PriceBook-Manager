@@ -32,15 +32,21 @@ namespace VerifoneCommander.PriceBookManager.Console
 
             try
             {
-                using ISapphireHttpClient sapphireHttpClient = new SapphireHttpClient(
-                    hostname: "192.168.31.11",
-                    username: "manager",
-                    password: password,
-                    logger: loggerFactory.CreateLogger<SapphireHttpClient>());
+                using HttpClientHttpRequestSender requestSender = new();
 
-                using ISapphireClient sapphireClient = new SapphireClient(
-                    httpClient: sapphireHttpClient,
-                    logger: loggerFactory.CreateLogger<SapphireClient>());
+                var credentialsProvider = new SapphireCredentialProvider(
+                    requestSender,
+                    loggerFactory.CreateLogger<SapphireCredentialProvider>());
+
+                var sapphireClient = new SapphireClient(
+                    requestSender,
+                    credentialsProvider,
+                    loggerFactory.CreateLogger<SapphireClient>());
+
+                credentialsProvider.SetLoginCredentials(
+                    hostName: "192.168.31.11",
+                    username: "manager",
+                    password: password);
 
                 var plus = await sapphireClient.GetPriceLookUpsAsync(default).ConfigureAwait(false);
                 logger.LogInformation($"Found {plus.Count} PLUs");
