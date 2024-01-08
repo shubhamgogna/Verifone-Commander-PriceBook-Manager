@@ -19,6 +19,7 @@
   <ItemGroup>
     <None Remove="AccountPage.xaml" />
     <None Remove="MainNavigationView.xaml" />
+    <None Remove="SearchPage.xaml" />
     <None Remove="SettingsPage.xaml" />
     <None Remove="ValidatedTextBox.xaml" />
   </ItemGroup>
@@ -41,6 +42,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\VerifoneCommander.PriceBookManager.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="SearchPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="AccountPage.xaml">

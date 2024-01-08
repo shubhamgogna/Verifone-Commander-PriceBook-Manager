@@ -8,7 +8,7 @@ namespace VerifoneCommander.PriceBookManager.Core.Models
 {
     using System.Collections.Generic;
 
-    public class Plu
+    public class Plu : ICloneable<Plu>
     {
         public long Ean13 { get; set; }
 
@@ -44,6 +44,26 @@ namespace VerifoneCommander.PriceBookManager.Core.Models
         public static ISet<int> GenerateDefaultFlagIds()
         {
             return new HashSet<int>() { 1, 5 };
+        }
+
+        public Plu Clone()
+        {
+            return new Plu
+            {
+                Ean13 = this.Ean13,
+                Modifier = this.Modifier,
+                Description = this.Description,
+                DepartmentId = this.DepartmentId,
+                FeeIds = new HashSet<int>(this.FeeIds),
+                ProductCodeId = this.ProductCodeId,
+                Price = this.Price,
+                FlagIds = new HashSet<int>(this.FlagIds),
+                TaxRateIds = new HashSet<int>(this.TaxRateIds),
+                AgeValidationIds = new HashSet<int>(this.AgeValidationIds),
+                SellUnit = this.SellUnit,
+                TaxableRebateAmount = this.TaxableRebateAmount,
+                MaxQuantityPerTransaction = this.MaxQuantityPerTransaction,
+            };
         }
     }
 }

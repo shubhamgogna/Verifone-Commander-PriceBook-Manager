@@ -31,6 +31,10 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
             {
                 return this.mainNavigationVm.AccountPage as T;
             }
+            else if (typeof(T) == typeof(SearchPageVm))
+            {
+                return this.mainNavigationVm.SearchPage as T;
+            }
             else if (typeof(T) == typeof(SettingsPageVm))
             {
                 return this.mainNavigationVm.SettingsPage as T;

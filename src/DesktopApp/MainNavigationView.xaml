@@ -24,9 +24,11 @@
             MenuItemsSource="{x:Bind ViewModel.HeaderPages}"
             FooterMenuItemsSource="{x:Bind ViewModel.FooterPages}"
             IsSettingsVisible="False"
-            SelectedItem="{x:Bind ViewModel.CurrentPage}"
+            SelectedItem="{x:Bind ViewModel.CurrentPage, Mode=TwoWay}"
             MenuItemTemplate="{StaticResource MenuItemDataTemplate}"
-            SelectionChanged="NavView_SelectionChanged">
+            SelectionChanged="NavView_SelectionChanged"
+            IsBackEnabled="False"
+            IsBackButtonVisible="Collapsed">
         <Grid Padding="40,24,24,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

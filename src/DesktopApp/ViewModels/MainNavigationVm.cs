@@ -12,8 +12,9 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
     using Microsoft.Extensions.Logging;
     using VerifoneCommander.PriceBookManager.Core;
     using VerifoneCommander.PriceBookManager.DesktopApp.Models;
+    using VerifoneCommander.PriceBookManager.DesktopApp.ViewModels.Models;
 
-    public partial class MainNavigationVm : ViewModelBase
+    public partial class MainNavigationVm : ViewModelBase, IRecipient<LoginStateChangedMessage>
     {
         private readonly ObservableCollection<IPageVM> headerPages = new();
         private readonly ObservableCollection<IPageVM> footerPages = new();
@@ -26,7 +27,7 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
             IMessenger messenger,
             ILogger logger,
             IModifiableSapphireCredentialsProvider credentialsProvider,
-            ISapphireClient sapphireClient)
+            ICachingSapphireClient sapphireClient)
             : base(uiThreadDispatcher, messenger, logger)
         {
             var settings = new Settings();
@@ -39,6 +40,12 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
                 credentialsProvider,
                 sapphireClient);
 
+            this.SearchPage = new SearchPageVm(
+                uiThreadDispatcher,
+                messenger,
+                logger,
+                sapphireClient);
+
             this.SettingsPage = new SettingsPageVm(
                 settings,
                 uiThreadDispatcher,
@@ -48,7 +55,11 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
             this.headerPages.Add(this.AccountPage);
             this.footerPages.Add(this.SettingsPage);
 
+            // Initial page
             this.CurrentPage = this.AccountPage;
+
+            // Messenger
+            this.Messenger.Register(this);
         }
 
         public ObservableCollection<IPageVM> HeaderPages => this.headerPages;
@@ -57,6 +68,24 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
 
         public AccountPageVm AccountPage { get; private set; }
 
+        public SearchPageVm SearchPage { get; private set; }
+
         public SettingsPageVm SettingsPage { get; private set; }
+
+        void IRecipient<LoginStateChangedMessage>.Receive(LoginStateChangedMessage message)
+        {
+            if (message.State == LoginState.LoggedIn)
+            {
+                this.HeaderPages.Add(this.SearchPage);
+
+                this.CurrentPage = this.SearchPage;
+            }
+            else if (message.State == LoginState.LoggedOut)
+            {
+                this.CurrentPage = this.AccountPage;
+
+                this.HeaderPages.Remove(this.SearchPage);
+            }
+        }
     }
 }

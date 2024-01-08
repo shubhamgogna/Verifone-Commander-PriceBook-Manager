@@ -84,28 +84,28 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.Mocks
             CancellationToken cancellationToken)
         {
             await DelayAsync().ConfigureAwait(false);
-            return this.plus.Select(x => Clone(x)).ToList();
+            return this.plus.Select(x => x.Clone()).ToList();
         }
 
         public async Task<List<Department>> GetDepartmentsAsync(
             CancellationToken cancellationToken)
         {
             await DelayAsync().ConfigureAwait(false);
-            return this.departments.Select(x => Clone(x)).ToList();
+            return this.departments.Select(x => x.Clone()).ToList();
         }
 
         public async Task<List<TaxRate>> GetTaxRatesAsync(
             CancellationToken cancellationToken)
         {
             await DelayAsync().ConfigureAwait(false);
-            return this.taxRates.Select(x => Clone(x)).ToList();
+            return this.taxRates.Select(x => x.Clone()).ToList();
         }
 
         public async Task<List<AgeValidation>> GetAgeValidationsAsync(
             CancellationToken cancellationToken)
         {
             await DelayAsync().ConfigureAwait(false);
-            return this.ageValidations.Select(x => Clone(x)).ToList();
+            return this.ageValidations.Select(x => x.Clone()).ToList();
         }
 
         public async Task UpdatePriceLookUpAsync(
@@ -120,11 +120,11 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.Mocks
 
             if (index >= 0)
             {
-                this.plus[index] = Clone(plu);
+                this.plus[index] = plu.Clone();
             }
             else
             {
-                this.plus.Add(Clone(plu));
+                this.plus.Add(plu.Clone());
             }
         }
 
@@ -146,58 +146,6 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.Mocks
         {
             // Simulate some async network operation by using an async delay
             return Task.Delay(500);
-        }
-
-        private static Plu Clone(Plu source)
-        {
-            return new Plu
-            {
-                Ean13 = source.Ean13,
-                Modifier = source.Modifier,
-                Description = source.Description,
-                DepartmentId = source.DepartmentId,
-                FeeIds = new HashSet<int>(source.FeeIds),
-                ProductCodeId = source.ProductCodeId,
-                Price = source.Price,
-                FlagIds = new HashSet<int>(source.FlagIds),
-                TaxRateIds = new HashSet<int>(source.TaxRateIds),
-                AgeValidationIds = new HashSet<int>(source.AgeValidationIds),
-                SellUnit = source.SellUnit,
-                TaxableRebateAmount = source.TaxableRebateAmount,
-                MaxQuantityPerTransaction = source.MaxQuantityPerTransaction,
-            };
-        }
-
-        private static Department Clone(Department source)
-        {
-            return new Department
-            {
-                SystemId = source.SystemId,
-                Name = source.Name,
-                AllowFoodStamps = source.AllowFoodStamps,
-                ProductCodeId = source.ProductCodeId,
-                TaxRateIds = new HashSet<int>(source.TaxRateIds),
-                AgeValidationIds = new HashSet<int>(source.AgeValidationIds),
-            };
-        }
-
-        private static TaxRate Clone(TaxRate source)
-        {
-            return new TaxRate
-            {
-                SystemId = source.SystemId,
-                Name = source.Name,
-                Rate = source.Rate,
-            };
-        }
-
-        private static AgeValidation Clone(AgeValidation source)
-        {
-            return new AgeValidation
-            {
-                SystemId = source.SystemId,
-                Name = source.Name,
-            };
         }
 
         private List<Plu> GenerateRandomPlus(int numToGenerate)

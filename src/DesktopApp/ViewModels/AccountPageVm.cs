@@ -22,7 +22,7 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
     {
         private readonly Settings settings;
         private readonly IModifiableSapphireCredentialsProvider credentialProvider;
-        private readonly ISapphireClient sapphireClient;
+        private readonly ICachingSapphireClient sapphireClient;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsLoggingIn))]
@@ -63,7 +63,7 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
             ILogger logger,
             Settings settings,
             IModifiableSapphireCredentialsProvider credentialProvider,
-            ISapphireClient sapphireClient)
+            ICachingSapphireClient sapphireClient)
             : base(uiThreadDispatcher, messenger, logger)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -118,8 +118,7 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
             try
             {
                 // Execute an operation that would indicate if login was successful
-                await this.sapphireClient.GetDepartmentsAsync(
-                    cancellationToken).ConfigureAwait(false);
+                await this.sapphireClient.RefreshCacheAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -145,6 +144,14 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
         private void Logout()
         {
             this.LoginState = LoginState.LoggedOut;
+        }
+
+        partial void OnLoginStateChanged(LoginState value)
+        {
+            if (value == LoginState.LoggedIn || value == LoginState.LoggedOut)
+            {
+                this.Messenger.Send(new LoginStateChangedMessage(value));
+            }
         }
     }
 }

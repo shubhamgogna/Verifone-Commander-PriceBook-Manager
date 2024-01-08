@@ -8,7 +8,7 @@ namespace VerifoneCommander.PriceBookManager.Core.Models
 {
     using System.Collections.Generic;
 
-    public class Department
+    public class Department : ICloneable<Department>
     {
         public int SystemId { get; set; }
 
@@ -21,5 +21,18 @@ namespace VerifoneCommander.PriceBookManager.Core.Models
         public ISet<int> TaxRateIds { get; set; } = new HashSet<int>();
 
         public ISet<int> AgeValidationIds { get; set; } = new HashSet<int>();
+
+        public Department Clone()
+        {
+            return new Department
+            {
+                SystemId = this.SystemId,
+                Name = this.Name,
+                AllowFoodStamps = this.AllowFoodStamps,
+                ProductCodeId = this.ProductCodeId,
+                TaxRateIds = new HashSet<int>(this.TaxRateIds),
+                AgeValidationIds = new HashSet<int>(this.AgeValidationIds),
+            };
+        }
     }
 }

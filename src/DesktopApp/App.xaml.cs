@@ -15,6 +15,7 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
     using Microsoft.UI.Xaml;
     using VerifoneCommander.PriceBookManager.Core;
     using VerifoneCommander.PriceBookManager.DesktopApp.Mocks;
+    using VerifoneCommander.PriceBookManager.DesktopApp.Models;
     using VerifoneCommander.PriceBookManager.DesktopApp.ViewModels;
 
     /// <summary>
@@ -66,12 +67,14 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp
                     NullLogger<SapphireClient>.Instance);
             }
 
+            var cachingSapphireClient = new CachingSapphireClient(sapphireClient);
+
             var mainNavigationVm = new MainNavigationVm(
                 uiThreadDispatcher,
                 messenger,
                 logger,
                 credentialsProvider,
-                sapphireClient);
+                cachingSapphireClient);
 
             ViewModelResolver = new AppViewModelResolver(mainNavigationVm);
         }
