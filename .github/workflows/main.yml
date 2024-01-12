@@ -1,0 +1,71 @@
+# See: https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/ci-for-winui3?pivots=winui3-packaged-csharp#step-3-set-up-your-workflow
+name: Build App Package
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    strategy:
+      matrix:
+        configuration: [ Release ]
+        platform: [x64, x86]
+    
+    # For a list of available runner types, refer to
+    # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+    runs-on: windows-latest
+    
+    env:
+      PROJECT_DIRECTORY: src/DesktopApp
+      PROJECT_PATH: src/DesktopApp/VerifoneCommander.PriceBookManager.DesktopApp.csproj
+      TEMP_SIGNING_KEY_NAME: TemporaryKey.pfx
+      TEMP_SIGNING_KEY_PATH: src/DesktopApp/TemporaryKey.pfx
+      
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.2
+    
+    # Restore the application to populate the obj folder with RuntimeIdentifiers
+    - name: Restore the application
+      run: msbuild $env:PROJECT_PATH /t:Restore /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+    
+    # Decode the base 64 encoded pfx and save the Signing_Certificate
+    - name: Decode the pfx
+      run: |
+        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.BASE64_ENCODED_MSIX_SIGNING_PFX }}")
+        [IO.File]::WriteAllBytes("$env:TEMP_SIGNING_KEY_PATH", $pfx_cert_byte)
+    
+    # Create the app package by building and packaging the project
+    - name: Create the app package
+      run: msbuild $env:PROJECT_PATH /p:Configuration=$env:Configuration /p:Platform=$env:Platform /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=$env:TEMP_SIGNING_KEY_NAME /p:AppxPackageDir="$env:Appx_Package_Dir" /p:GenerateAppxPackageOnBuild=true
+      env:
+        Appx_Bundle: Never
+        Appx_Package_Build_Mode: SideloadOnly
+        Appx_Package_Dir: Packages\
+        Configuration: ${{ matrix.configuration }}
+        Platform: ${{ matrix.platform }}
+    
+    # Remove the pfx
+    - name: Remove the pfx
+      run: |
+        Remove-Item -Path "$env:TEMP_SIGNING_KEY_PATH"
+    
+    # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
+    - name: Upload MSIX package
+      uses: actions/upload-artifact@v2
+      with:
+        name: MSIX Packages
+        path: ${{ env.PROJECT_DIRECTORY }}/Packages

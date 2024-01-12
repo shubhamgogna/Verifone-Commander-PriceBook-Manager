@@ -51,6 +51,11 @@
             <Button Visibility="{x:Bind ViewModel.IsLoggedIn, Mode=OneWay}"
                     Content="Logout"
                     Command="{x:Bind ViewModel.LogoutCommand}"/>
+
+            <TextBlock Text="{x:Bind ViewModel.LoginError, Mode=OneWay}"
+                   Visibility="{x:Bind ViewModel.HasLoginError, Mode=OneWay}"
+                   Foreground="{ThemeResource SystemErrorTextColor}"
+                   TextWrapping="WrapWholeWords" />
         </StackPanel>
     </StackPanel>
 </Page>

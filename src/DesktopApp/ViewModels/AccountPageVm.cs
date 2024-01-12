@@ -55,6 +55,7 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
             });
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasLoginError))]
         private string loginError;
 
         public AccountPageVm(
@@ -90,6 +91,8 @@ namespace VerifoneCommander.PriceBookManager.DesktopApp.ViewModels
         public bool IsLoggedIn => this.LoginState == LoginState.LoggedIn;
 
         public bool IsLoggedOut => this.LoginState == LoginState.LoggedOut;
+
+        public bool HasLoginError => !string.IsNullOrEmpty(this.LoginError);
 
         private async Task LoginAsync(
             CancellationToken cancellationToken)
